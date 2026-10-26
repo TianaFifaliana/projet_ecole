@@ -10,6 +10,8 @@ class Guardian extends Model
 
     public function students()
     {
-        return $this->belongsToMany(Student::class, 'guardian_student');
+        return $this->belongsToMany(Student::class, 'guardian_student')
+            ->withPivot('lien_parente')
+            ->withTimestamps();
     }
 }

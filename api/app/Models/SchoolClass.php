@@ -8,6 +8,8 @@ class SchoolClass extends Model
 {
     protected $guarded = [];
 
+    protected $casts = ['capacite' => 'integer'];
+
     public function schoolYear()
     {
         return $this->belongsTo(SchoolYear::class);

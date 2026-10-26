@@ -2,7 +2,9 @@ import { Route, Routes } from 'react-router-dom'
 import RequireAuth from './auth/RequireAuth'
 import AppLayout from './components/AppLayout'
 import Permission from './components/Permission'
+import AnneesPage from './pages/AnneesPage'
 import CertificatsPage from './pages/CertificatsPage'
+import ClasseDetailPage from './pages/ClasseDetailPage'
 import ClassesPage from './pages/ClassesPage'
 import DashboardPage from './pages/DashboardPage'
 import ElevesPage from './pages/ElevesPage'
@@ -13,6 +15,8 @@ import NotFoundPage from './pages/NotFoundPage'
 import PaiementsPage from './pages/PaiementsPage'
 import ParametresPage from './pages/ParametresPage'
 import ProfesseursPage from './pages/ProfesseursPage'
+import StudentDetailPage from './pages/StudentDetailPage'
+import StudentFormPage from './pages/StudentFormPage'
 
 export default function App() {
   return (
@@ -32,6 +36,38 @@ export default function App() {
             }
           />
           <Route
+            path="eleves/nouveau"
+            element={
+              <Permission permission="eleves">
+                <StudentFormPage />
+              </Permission>
+            }
+          />
+          <Route
+            path="eleves/:id"
+            element={
+              <Permission permission="eleves">
+                <StudentDetailPage />
+              </Permission>
+            }
+          />
+          <Route
+            path="eleves/:id/modifier"
+            element={
+              <Permission permission="eleves">
+                <StudentFormPage />
+              </Permission>
+            }
+          />
+          <Route
+            path="annees"
+            element={
+              <Permission permission="parametres">
+                <AnneesPage />
+              </Permission>
+            }
+          />
+          <Route
             path="professeurs"
             element={
               <Permission permission="professeurs">
@@ -44,6 +80,14 @@ export default function App() {
             element={
               <Permission permission="classes">
                 <ClassesPage />
+              </Permission>
+            }
+          />
+          <Route
+            path="classes/:id"
+            element={
+              <Permission permission="classes">
+                <ClasseDetailPage />
               </Permission>
             }
           />

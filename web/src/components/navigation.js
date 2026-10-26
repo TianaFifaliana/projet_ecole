@@ -12,6 +12,12 @@ export const NAVIGATION = [
     permission: 'eleves',
   },
   {
+    to: '/annees',
+    label: 'Années scolaires',
+    icon: 'calendar',
+    permission: 'parametres',
+  },
+  {
     to: '/professeurs',
     label: 'Professeurs',
     icon: 'professeurs',

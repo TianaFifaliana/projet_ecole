@@ -69,3 +69,48 @@ export function formatMonthLong(monthKey) {
 
   return capitalize(monthLongFormatter.format(date))
 }
+
+const dateFormatter = new Intl.DateTimeFormat('fr-FR', {
+  day: '2-digit',
+  month: '2-digit',
+  year: 'numeric',
+})
+
+export function formatDate(value) {
+  if (!value) {
+    return '—'
+  }
+
+  const date = new Date(`${value}T12:00:00`)
+
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+
+  return dateFormatter.format(date)
+}
+
+export function formatFileSize(bytes) {
+  const value = Number(bytes)
+
+  if (!Number.isFinite(value) || value <= 0) {
+    return '—'
+  }
+
+  if (value < 1024 * 1024) {
+    return `${Math.max(1, Math.round(value / 1024))} Ko`
+  }
+
+  return `${(value / (1024 * 1024)).toFixed(1)} Mo`
+}
+
+export function getInitials(value) {
+  return String(value ?? '')
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part.charAt(0).toUpperCase())
+    .join('')
+}
+

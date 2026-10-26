@@ -8,7 +8,10 @@ class Subject extends Model
 {
     protected $guarded = [];
 
-    protected $casts = ['coefficient' => 'decimal:2'];
+    protected $casts = [
+        'coefficient' => 'decimal:2',
+        'volume_horaire' => 'integer',
+    ];
 
     public function classes()
     {

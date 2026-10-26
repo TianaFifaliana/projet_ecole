@@ -1,4 +1,5 @@
 import { SCHOOL_NAME, SCHOOL_TAGLINE } from '../config'
+import useSchoolYear from '../schoolYear/useSchoolYear'
 import Icon from './Icons'
 import UserMenu from './UserMenu'
 
@@ -14,6 +15,9 @@ function formatToday() {
 }
 
 export default function Header({ onOpenSidebar }) {
+  const { years, selectedYearId, setSelectedYearId, isLoading } =
+    useSchoolYear()
+
   return (
     <header className="app-header">
       <div className="header-left">
@@ -33,6 +37,26 @@ export default function Header({ onOpenSidebar }) {
       </div>
 
       <div className="header-actions">
+        {years.length > 0 ? (
+          <label className="year-picker">
+            <span className="year-picker-label">Année scolaire</span>
+            <select
+              value={selectedYearId ?? ''}
+              onChange={(event) => setSelectedYearId(event.target.value)}
+              aria-label="Année scolaire"
+            >
+              {years.map((year) => (
+                <option key={year.id} value={year.id}>
+                  {year.libelle}
+                  {year.active ? ' · active' : ''}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : isLoading ? (
+          <span className="year-picker-loading">Chargement…</span>
+        ) : null}
+
         <span className="header-date">
           <Icon name="calendar" size={16} />
           {formatToday()}

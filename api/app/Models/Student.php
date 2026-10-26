@@ -2,11 +2,15 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
 
 class Student extends Model
 {
     protected $guarded = [];
+
+    protected $appends = ['nom_complet', 'photo_url'];
 
     protected $casts = ['date_naissance' => 'date'];
 
@@ -17,7 +21,9 @@ class Student extends Model
 
     public function guardians()
     {
-        return $this->belongsToMany(Guardian::class, 'guardian_student');
+        return $this->belongsToMany(Guardian::class, 'guardian_student')
+            ->withPivot('lien_parente')
+            ->withTimestamps();
     }
 
     public function documents()
@@ -43,6 +49,22 @@ class Student extends Model
     public function certificates()
     {
         return $this->hasMany(Certificate::class);
+    }
+
+    protected function nomComplet(): Attribute
+    {
+        return Attribute::get(
+            fn (): string => trim($this->nom.' '.($this->prenoms ?? '')),
+        );
+    }
+
+    protected function photoUrl(): Attribute
+    {
+        return Attribute::get(
+            fn (): ?string => $this->photo
+                ? Storage::disk('public')->url($this->photo)
+                : null,
+        );
     }
 
     /**

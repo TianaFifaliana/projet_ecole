@@ -24,7 +24,6 @@ Route::middleware('auth:sanctum')->group(function () {
         ->middleware('permission:parametres');
 
     Route::middleware('permission:classes')->group(function () {
-        Route::get('/teachers', [TeacherController::class, 'index']);
         Route::get('/classes', [SchoolClassController::class, 'index']);
         Route::post('/classes', [SchoolClassController::class, 'store']);
         Route::get('/classes/{schoolClass}/students/export-pdf', [SchoolClassController::class, 'exportPdf']);
@@ -35,6 +34,18 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/classes/{schoolClass}', [SchoolClassController::class, 'show']);
         Route::match(['put', 'patch'], '/classes/{schoolClass}', [SchoolClassController::class, 'update']);
         Route::delete('/classes/{schoolClass}', [SchoolClassController::class, 'destroy']);
+    });
+
+    Route::middleware('permission:professeurs')->group(function () {
+        Route::get('/teachers', [TeacherController::class, 'index']);
+        Route::post('/teachers', [TeacherController::class, 'store']);
+        Route::get('/teachers/{teacher}', [TeacherController::class, 'show']);
+        Route::match(['put', 'patch'], '/teachers/{teacher}', [TeacherController::class, 'update']);
+        Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
+        Route::post('/teachers/{teacher}/subjects', [TeacherController::class, 'syncSubjects']);
+        Route::post('/teachers/{teacher}/assign-main', [TeacherController::class, 'assignAsMainTeacher']);
+        Route::post('/teachers/{teacher}/create-account', [TeacherController::class, 'createAccount']);
+        Route::get('/teachers/{teacher}/planning', [TeacherController::class, 'planning']);
     });
 
     Route::middleware('permission:matieres')->group(function () {

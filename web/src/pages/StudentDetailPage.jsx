@@ -8,6 +8,8 @@ import {
   detachGuardian,
   downloadStudentDocument,
   getStudent,
+  getStudentPayments,
+  getStudentPresences,
   listGuardians,
   uploadStudentDocument,
   uploadStudentPhoto,
@@ -84,6 +86,12 @@ export default function StudentDetailPage() {
     queryFn: () => getStudent(id),
   })
 
+  const studentPaymentsQuery = useQuery({
+    queryKey: ['student-payments', id],
+    queryFn: () => getStudentPayments(id),
+    enabled: tab === 'paiements',
+  })
+
   const guardiansQuery = useQuery({
     queryKey: ['guardians'],
     queryFn: () => listGuardians(),
@@ -94,6 +102,12 @@ export default function StudentDetailPage() {
   const schoolYear = years.find(
     (year) => year.id === student?.school_class?.school_year_id,
   )
+
+  const presencesQuery = useQuery({
+    queryKey: ['student-presences', id],
+    queryFn: () => getStudentPresences(id),
+    enabled: tab === 'presences',
+  })
 
   function invalidateStudent() {
     queryClient.invalidateQueries({ queryKey: ['student', id] })
@@ -701,7 +715,7 @@ export default function StudentDetailPage() {
           <div className="card-header-row">
             <h2 className="section-title">Résumé des paiements</h2>
             <span className="muted-text">
-              {paiements.nombre_paiements ?? 0} paiement(s) validé(s)
+              {paiements.nombre_paiements ?? studentPaymentsQuery.data?.data?.length ?? 0} paiement(s) validé(s)
             </span>
           </div>
           <div className="summary-grid">
@@ -724,17 +738,80 @@ export default function StudentDetailPage() {
               </strong>
             </div>
           </div>
-          <p className="muted-text">
-            Le détail des paiements sera disponible dans le module dédié.
-          </p>
+
+          <div className="table-wrapper" style={{ marginTop: '1rem' }}>
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>N° Reçu</th>
+                  <th>Date</th>
+                  <th>Frais</th>
+                  <th>Montant</th>
+                  <th>Mode</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                {studentPaymentsQuery.isLoading ? (
+                  <tr>
+                    <td colSpan={6} className="table-state">Chargement...</td>
+                  </tr>
+                ) : (studentPaymentsQuery.data?.data ?? []).length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="table-state">Aucun paiement</td>
+                  </tr>
+                ) : (
+                  (studentPaymentsQuery.data?.data ?? []).map((p) => (
+                    <tr key={p.id}>
+                      <td>{p.numero_recu}</td>
+                      <td>{p.date_paiement}</td>
+                      <td>{p.fee?.type}</td>
+                      <td>{formatAriary(p.montant)}</td>
+                      <td>{p.mode}</td>
+                      <td>{p.statut}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       ) : null}
 
       {tab === 'presences' ? (
-        <ComingSoon
-          title="Suivi des présences"
-          description="L’historique des présences sera disponible lors de l’étape dédiée aux séances."
-        />
+        <div className="card">
+          <div className="card-header-row">
+            <h2 className="section-title">Présences</h2>
+            <span className="muted-text">Taux de présence et absences</span>
+          </div>
+          <div className="summary-grid">
+            <div className="summary-card">
+              <span className="summary-label">Total séances</span>
+              <strong className="summary-value">{presencesQuery.data?.total ?? 0}</strong>
+            </div>
+            <div className="summary-card">
+              <span className="summary-label">Présents / Justifiés</span>
+              <strong className="summary-value">{presencesQuery.data?.presents ?? 0}</strong>
+            </div>
+            <div className="summary-card">
+              <span className="summary-label">Absents</span>
+              <strong className="summary-value">{presencesQuery.data?.absents ?? 0}</strong>
+            </div>
+            <div className="summary-card">
+              <span className="summary-label">Retards</span>
+              <strong className="summary-value">{presencesQuery.data?.retards ?? 0}</strong>
+            </div>
+            <div className="summary-card summary-card-alert">
+              <span className="summary-label">Taux de présence</span>
+              <strong className="summary-value">{presencesQuery.data?.taux_presence ?? 100}%</strong>
+            </div>
+          </div>
+          {presencesQuery.data?.depasse_seuil ? (
+            <p className="alert alert-warning" style={{ marginTop: '1rem' }}>
+              Nombre d'absences ({presencesQuery.data?.absents}) supérieur ou égal au seuil ({presencesQuery.data?.seuil_absences}).
+            </p>
+          ) : null}
+        </div>
       ) : null}
 
       {tab === 'certificats' ? (

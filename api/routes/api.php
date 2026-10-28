@@ -2,7 +2,11 @@
 
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\FeeController;
+use App\Http\Controllers\GroupController;
 use App\Http\Controllers\GuardianController;
+use App\Http\Controllers\LessonSessionController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\SchoolClassController;
 use App\Http\Controllers\SchoolYearController;
 use App\Http\Controllers\StudentController;
@@ -80,5 +84,25 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/guardians', [GuardianController::class, 'index']);
         Route::post('/guardians', [GuardianController::class, 'store']);
         Route::match(['put', 'patch'], '/guardians/{guardian}', [GuardianController::class, 'update']);
+    });
+
+    Route::middleware('permission:paiements')->group(function () {
+        Route::apiResource('fees', FeeController::class);
+        Route::get('/payments/impayes', [PaymentController::class, 'impayes']);
+        Route::get('/payments/rapports', [PaymentController::class, 'rapports']);
+        Route::get('/payments', [PaymentController::class, 'index']);
+        Route::post('/payments', [PaymentController::class, 'store']);
+        Route::get('/payments/{payment}', [PaymentController::class, 'show']);
+        Route::get('/payments/{payment}/recu', [PaymentController::class, 'recu']);
+        Route::post('/payments/{payment}/annuler', [PaymentController::class, 'annuler']);
+    });
+
+    Route::middleware('permission:groupes')->group(function () {
+        Route::apiResource('groups', GroupController::class);
+        Route::post('/groups/{group}/students', [GroupController::class, 'attachStudent']);
+        Route::delete('/groups/{group}/students/{student}', [GroupController::class, 'detachStudent']);
+        Route::apiResource('lesson-sessions', LessonSessionController::class)->parameters(['lesson-sessions' => 'lessonSession']);
+        Route::post('/lesson-sessions/{lessonSession}/appel', [LessonSessionController::class, 'appel']);
+        Route::get('/presences/statistiques', [LessonSessionController::class, 'statistiques']);
     });
 });

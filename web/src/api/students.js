@@ -96,3 +96,13 @@ export function downloadStudentDocument(studentId, documentId, filename) {
     filename,
   )
 }
+
+export const getStudentPayments = async (studentId) => {
+  const { data } = await api.get('/payments', { params: { student_id: studentId, per_page: 100 } })
+  return data
+}
+
+export const getStudentPresences = async (studentId, params = {}) => {
+  const { data } = await api.get('/presences/statistiques', { params: { student_id: studentId, ...params } })
+  return data
+}
